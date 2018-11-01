@@ -1,6 +1,6 @@
-(ns say-cheeez.core-test
+(ns say-cheez.core-test
   (:require [clojure.test :refer :all]
-            [say-cheeez.core :refer :all]))
+            [say-cheez.core :refer :all]))
 
 (deftest a-test
   (testing "FIXME, I fail."
