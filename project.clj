@@ -1,9 +1,10 @@
-(defproject say-cheez "0.0.1"
+(defproject say-cheez "0.0.2"
   :description "Takes a snapshot of the environment at build time."
   :url "https://github.com/l3nz/say-cheez"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.9.0" :scope "provided"]]
+  :main say-cheez.run
   :scm {:name "git"
         ;; :tag "..."
         :url "https://github.com/l3nz/say-cheez" }
