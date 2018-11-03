@@ -3,10 +3,39 @@
 Takes a snapshot of the environment at build time.
 
 Sometimes you'd want to reference the version of your package
-at run time, or when /where / from what sources it was built, but that information
+at run time, or when / where / from what sources it was built, but that information
 is not available anymore. 
 
 But Clojure macros come to the rescue!
+
+##  Example
+
+	(ns baab.baah
+		(:require [say-cheez.core :refer [capture-build-env-to]]))
+	....
+	(capture-build-env-to BUILD)
+
+Is exactly the same as if you wrote by hand:
+
+	(defonce BUILD 
+		{:arch "x86_64",
+		 :git-build "e4b7836/2018-11-03.14:45:31",
+		 :osname "gnu-linux",
+		 :project "say-cheez",
+		 :built-at "2018-11-03.14:49:25",
+		 :built-by "jenkins",
+		 :on-host "jenkins18.loway.internal",
+		 :version "0.0.2",
+		 :build-no "107"})
+
+But for the fact that such information comes from different places: 
+
+* project.clj
+* the build environment
+* git
+* when the project was built
+
+And would not usually be available at run time.
 
 
 ## Using
@@ -28,39 +57,14 @@ Or the library can be easily referenced through Github:
 ## Features
 
 * Captures some environment (project name, date, version, build number) at build time
-* Has 
+* Has a couple of functions for inspecting runtime JVM and PID.
 * By separating the Java specific functions in the namespace "platform", it should be easy
-  to exetend for ClojureScript.
+  to extend for ClojureScript.
 
-##  Example
+TODO:
 
-	(:require [say-cheez.core :refer [capture-build-env-to runtime]])
-	....
-	(capture-build-env-to BUILD)
-
-is the same as:
-
-	(defonce BUILD 
-		{:arch "x86_64",
-		 :git-build "e4b7836/2018-11-03.14:45:31",
-		 :osname "gnu-linux",
-		 :project "say-cheez",
-		 :built-at "2018-11-03.14:49:25",
-		 :built-by "jenkins",
-		 :on-host "jenkins18.loway.internal",
-		 :version "0.0.2",
-		 :build-no "107"})
-
-But for the fact that such information comes from different places: 
-
-* project.clj
-* the build environment
-* GIT
-* when the project was built
-
-And would not usually be available at run time.
-
-
+* Making the macro totally extensible
+* Reading edn/json/cvs files 
 
 ### Transitive dependencies
 
