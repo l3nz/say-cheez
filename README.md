@@ -1,10 +1,10 @@
 # Say-cheez
 
-Takes a snapshot of the environment at build time.
+Captures a snapshot of the environment at build time, so you can display it at run-time.
 
 Sometimes you'd want to reference the version of your package
 at run time, or when / where / from what sources it was built, but that information
-is not available anymore. 
+is not available anymore once you deploy your app somewhere else. 
 
 But Clojure macros come to the rescue!
 
@@ -56,7 +56,7 @@ Or the library can be easily referenced through Github:
 
 ## Features
 
-* Captures some environment (project name, date, version, build number) at build time
+* Captures some environment (project name, date, version, build number, git commit) at build time
 * Has a couple of functions for inspecting runtime JVM and PID.
 * By separating the Java specific functions in the namespace "platform", it should be easy
   to extend for ClojureScript.
@@ -64,7 +64,7 @@ Or the library can be easily referenced through Github:
 TODO:
 
 * Making the macro totally extensible
-* Reading edn/json/cvs files 
+* Reading edn/json/cvs files, so they appear as a var and you do not have to read them. 
 
 ### Transitive dependencies
 
