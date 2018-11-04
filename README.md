@@ -1,6 +1,6 @@
 # Say-cheez
 
-Captures a snapshot of the environment at build time, so you cn display it at run-time.
+Captures a snapshot of the environment at build time, so you can display it at run-time.
 
 Sometimes you'd want to reference the version of your package
 at run time, or when / where / from what sources it was built, but that information
