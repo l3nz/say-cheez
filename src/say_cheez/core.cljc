@@ -1,3 +1,4 @@
+^{:doc "Annotation!"}
 (ns say-cheez.core
     (:require [say-cheez.platform :as P]
               [clojure.edn :as edn]))
@@ -105,8 +106,7 @@
   (condp = what
     :pid  (P/get-current-pid)
     :vm   (P/get-current-VM)
-    )
-  )
+    ))
 
 
 
@@ -115,36 +115,58 @@
 ;;
 
 
-;(defmacro defonce-to
-;  "Writes a defonce with the contents of data"
-;  [env-sym data]
-;  `(defonce ~env-sym ~data))
+
+(defmacro capture-to
+  "Captures the compile-time evaluation of `exp-to-eval`
+  and binds it to `sym`.
+
+  For example:
+
+  (capture-to NOW (str (java.util.Date.))
+
+  Is expanded to:
+
+  (defonce NOW \"Sun Nov 04 20:28:41 CET 2018\")
+
+  And while we are at it, it is also printed on STDOUT.
+
+  "
+  [sym exp-to-eval]
+  (let [v (eval exp-to-eval)
+        _ (prn (str "Say-cheez captured environment '" sym "' : " v))
+        ]
+    `(defonce ~sym {:project ~v})))
+
 
 (defmacro capture-build-env-to
-    "Captures build environment into a single map
+  "Captures common build environment stuff into a single map
     that contains most of what you may need.
 
     If you need to fine-tune the contents,
-    use defonce-to above.
+    use `capture-to` above.
+
+    Call:
+
+    (capture-build-env-to BUILD)
+
+
+    Generates:
+
+    `(defonce BUILD \n\t{:arch \"x86_64\",\n\t :git-build \"e4b7836/2018-11-03.14:45:31\",\n\t :osname \"gnu-linux\",\n\t :project \"say-cheez\",\n\t :built-at \"2018-11-03.14:49:25\",\n\t :built-by \"jenkins\",\n\t :on-host \"jenkins18.loway.internal\",\n\t :version \"0.0.2\",\n\t :build-no \"107\"})`
+
+    (Not all values may be present, as it actually depends on
+    what is available).
 
     "
-    [env-sym]
-    (let [now (now-as :datetime)
-          user (env "USER" "?")
-          nbuild (env "BUILD_NUMBER" "?")
-          host (env "HOSTNAME" "?")
-          hosttype (env "HOSTTYPE" "?")
-          osname (env "OSTYPE" "?")
-          gitbuild (git-info :all)
-          project (leiningen-info :project-name)
-          version (leiningen-info :version)
-          ]
-        `(defonce ~env-sym {:project ~project
-                            :version ~version
-                            :built-at ~now
-                            :on-host ~host
-                            :osname ~osname
-                            :arch   ~hosttype
-                            :build-no ~nbuild
-                            :git-build ~gitbuild
-                            :built-by ~user})))
+  [sym]
+  `(capture-to ~sym {:project (leiningen-info :project-name)
+                   :version (leiningen-info :version)
+                   :built-at (now-as :datetime)
+                   :on-host (env ["HOSTNAME"] "?")
+                   :osname (env ["OSTYPE"] "?")
+                   :arch   (env ["HOSTTYPE"] "?")
+                   :build-no (env ["BUILD_NUMBER"] "?")
+                   :git-build (git-info :all)
+                   :built-by (env ["USER"] "?")}))
+
+
