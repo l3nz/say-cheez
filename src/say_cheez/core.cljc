@@ -4,7 +4,8 @@
   This namespace is divided into two areas:
 
   * fns that capture some attribute of the environment ([[now-as]], [[env]], [[leiningen-info]] and [[git-info]])
-  * macros that 'stick it together' at build time.
+  * macros that 'stick it together' at build time ([[capture-build-env-to]] that builds a
+  simple default, and [[capture-to]] if you need finer control).
 
   Please note that anything in this namespace is supposed to be plain Clojure,
   so most functions reach out to something under [[say-cheez.platform]] that actually
@@ -177,7 +178,8 @@
 
   `(defonce NOW \"Sun Nov 04 20:28:41 CET 2018\")`
 
-  And while we are at it, it is also printed on STDOUT.
+  And while we are at it, the captured value is also printed on STDOUT,
+  so you can see it immediately during the build.
 
   "
   [sym exp-to-eval]
@@ -190,9 +192,6 @@
 (defmacro capture-build-env-to
   "Captures common build environment stuff into a single map
     that contains most of what you may need.
-
-    If you need to fine-tune the contents,
-    use `capture-to` above.
 
     Call:
 
@@ -212,8 +211,9 @@
           :version \"0.0.2\",
           :build-no \"107\"})`
 
-    (Not all values may be present, as it actually depends on
-    what is available).
+    Not all values may be present, as it actually depends on
+    what is available. If you need to fine-tune the contents,
+    use [[capture-to]]. Look at the source.
 
     "
   [sym]
