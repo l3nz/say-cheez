@@ -1,4 +1,4 @@
-# Say-cheez
+# Say-cheez :)
 
 Captures a snapshot of the environment at build time, so you can display it at run-time.
 

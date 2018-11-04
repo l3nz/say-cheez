@@ -1,5 +1,8 @@
-^{:doc "Annotation!"}
 (ns say-cheez.core
+  "# Core
+
+  Is this *Markdown*?
+  "
     (:require [say-cheez.platform :as P]
               [clojure.edn :as edn]))
 
