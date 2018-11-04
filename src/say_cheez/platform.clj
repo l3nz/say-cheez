@@ -1,9 +1,11 @@
-(ns say-cheez.platform)
+(ns say-cheez.platform
+  "## Platform (JVM)
 
-;
-; This file contains platform-specific calls
-; for the Java VM.
-;
+   This file contains platform-specific calls for the Java VM.
+
+  "
+
+  )
 
 
 (defn shellout
@@ -30,17 +32,16 @@
 
 (defn get-current-pid
   "Returns a string that describes the current PID.
-  Usually like '2779@Lenzs-MacBook-Pro-2.local'
+  Usually like \"2779@Lenzs-MacBook-Pro-2.local\"
   "
   []
   (let [runtime (bean (java.lang.management.ManagementFactory/getRuntimeMXBean))]
-
     (:name runtime)))
 
 (defn get-current-VM
   "Returns a description of current VM
 
-  Ex. 'Oracle Corporation 25.181-b13 (Java 1.8)'"
+  Ex. \"Oracle Corporation 25.181-b13 (Java 1.8)\""
   []
   (let [runtime (bean (java.lang.management.ManagementFactory/getRuntimeMXBean))]
     (str (:vmVendor runtime) " "

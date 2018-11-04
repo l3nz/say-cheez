@@ -1,7 +1,19 @@
 (ns say-cheez.core
-  "# Core
+  "## Core
 
-  Is this *Markdown*?
+  This namespace is divided into two areas:
+
+  * fns that capture some attribute of the environment ([[now-as]], [[env]], [[leiningen-info]] and [[git-info]])
+  * macros that 'stick it together' at build time.
+
+  Please note that anything in this namespace is supposed to be plain Clojure,
+  so most functions reach out to something under [[say-cheez.platform]] that actually
+  implements the basic functionality.
+
+  Most functions are supposed to receive a single keyword that will act as a \"preset\"
+  and tells them what is needed.
+
+
   "
     (:require [say-cheez.platform :as P]
               [clojure.edn :as edn]))
@@ -13,7 +25,14 @@
 
 
 (defn now-as
-    "Prints current date/time in different ways."
+    "Prints the current date/time in different ways.
+
+    * :date
+    * :time
+    * :timec   (compact)
+    * :datetime
+
+    "
     [mode]
     (condp = mode
         :date  (P/date->str "yyyy-MM-dd")
@@ -34,6 +53,10 @@
 
   If there is more than one label, tries them in order.
   If no value found, returns defValue.
+
+  e.g. `(env [\"A\" \"B\"] \"x\")`
+
+  Will try *A*, then *B*, and in neither is defined will return *x*.
 
   "
   [lEnvVars defValue]
@@ -60,7 +83,15 @@
 
 
 (defn leiningen-info
-    ([tag]
+    "Reads information from a leiningen project.
+
+    * :projectt-name
+    * :version
+
+    Use the one-arity version.
+
+    "
+   ([tag]
      (leiningen-info tag read-project-clj))
 
     ([tag fnReader]
@@ -84,6 +115,17 @@
 
 
 (defn git-info
+    "Reads data from GIT. Git must be installed (we just shell-out).
+
+    * :commit-id
+    * :commit-long
+    * :last-committer
+    * :date
+    * :date-compact
+    * :all    - *abcdefg/20181103.1023*
+
+    "
+
     [what]
     (condp = what
         :commit-id (gitlog "--pretty=%h")
@@ -104,7 +146,11 @@
 ;; ======================================================
 (defn runtime
   "Inspects the runtime for stuff you may want to
-  print at runtime."
+  print at runtime.
+
+  * :pid - the current PID - under the JVM we also get the hostname
+  * :vm  - the kind of VM we are running in
+  "
   [what]
   (condp = what
     :pid  (P/get-current-pid)
@@ -125,11 +171,11 @@
 
   For example:
 
-  (capture-to NOW (str (java.util.Date.))
+  `(capture-to NOW (str (java.util.Date.))`
 
   Is expanded to:
 
-  (defonce NOW \"Sun Nov 04 20:28:41 CET 2018\")
+  `(defonce NOW \"Sun Nov 04 20:28:41 CET 2018\")`
 
   And while we are at it, it is also printed on STDOUT.
 
@@ -150,12 +196,21 @@
 
     Call:
 
-    (capture-build-env-to BUILD)
+    `(capture-build-env-to BUILD)`
 
 
     Generates:
 
-    `(defonce BUILD \n\t{:arch \"x86_64\",\n\t :git-build \"e4b7836/2018-11-03.14:45:31\",\n\t :osname \"gnu-linux\",\n\t :project \"say-cheez\",\n\t :built-at \"2018-11-03.14:49:25\",\n\t :built-by \"jenkins\",\n\t :on-host \"jenkins18.loway.internal\",\n\t :version \"0.0.2\",\n\t :build-no \"107\"})`
+    `(defonce BUILD
+         {:arch \"x86_64\",
+          :git-build \"e4b7836/2018-11-03.14:45:31\",
+          :osname \"gnu-linux\",
+          :project \"say-cheez\",
+          :built-at \"2018-11-03.14:49:25\",
+          :built-by \"jenkins\",
+          :on-host \"jenkins18.loway.internal\",
+          :version \"0.0.2\",
+          :build-no \"107\"})`
 
     (Not all values may be present, as it actually depends on
     what is available).

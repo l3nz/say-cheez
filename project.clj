@@ -1,4 +1,4 @@
-(defproject say-cheez "0.0.4"
+(defproject say-cheez "0.0.5"
   :description "Takes a snapshot of the environment at build time."
   :url "https://github.com/l3nz/say-cheez"
   :license {:name "Eclipse Public License"
