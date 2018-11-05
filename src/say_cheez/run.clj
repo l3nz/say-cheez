@@ -13,5 +13,6 @@
   (println "BUILD" BUILD)
   (println "CUSTOM:" CUSTOM)
   (println "PID:" (runtime :pid))
-  (println "VM:" (runtime :vm)))
+  (println "VM:" (runtime :vm))
+  (println "Memory:" (runtime :mem)))
 

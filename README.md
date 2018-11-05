@@ -6,7 +6,8 @@ Sometimes you'd want to reference the version of your package
 at run time, or when / where / from what sources it was built, but that information
 is not available anymore once you deploy your app somewhere else. 
 
-But Clojure macros come to the rescue!
+It can also be useful to run a pipeline once when building, e.g. compiling a SASS file
+into CSS and storing the result as a string.
 
 ##  Example
 
@@ -38,6 +39,41 @@ But for the fact that such information comes from different places:
 And would not usually be available at run time.
 
 
+### Customizing values
+
+Of course, you can capture the exact values you need if our own chili is not to your taste.
+
+		(capture-to MYBUILD {:project (leiningen-info :project-name)
+		                     :myId    (env ["MY_OWN_ID"] "?")})
+
+
+You can call any function and build any valid data structure.
+
+We offers ome convenience functions to help:
+
+* Current time: `(now-as :datetime)`. Also valid: 
+	* :date
+    * :time
+    * :timec   (compact)
+    * :datetime
+* Environment: `(env ["A" "B"] "x")`. Tries reading first A and then B, and if all are undefined, returns "x". You may want to go look for a sequence of environament variables if you build on different machines / OS.
+* Leiningen: `(leiningen-info :project-name)`. Also valid:
+    * :projectt-name
+    * :version
+* Git: `(git-info :all)`. Also valid:
+    * :commit-id
+    * :commit-long
+    * :last-committer
+    * :date
+    * :date-compact
+    * :all    - *abcdefg/20181103.1023*
+* Runtime: this is useful if you have a long running application - maybe close to the version and build number, you want to print the current memory usage. I surely do. So call `(runtime :mem)`. Also valid:
+  * :pid - the current PID - under the JVM we also get the hostname
+  * :vm  - the kind of VM we are running in
+  * :mem - current memory state - e.g. `"141/1590M 9% used"`
+
+About the runtime, under `platform` there is a function to set the current thread's name.
+
 ## Using
 
 The library is available on Clojars:
@@ -63,7 +99,6 @@ Or the library can be easily referenced through Github:
 
 TODO:
 
-* Making the macro totally extensible
 * Reading edn/json/cvs files, so they appear as a var and you do not have to read them. 
 
 ### Transitive dependencies

@@ -145,17 +145,55 @@
 ;; ======================================================
 ;; RUNTIME INFORMATION
 ;; ======================================================
+
+(defn safe-quot
+  "Integer division; if divide by zero, returns 0."
+  [n d]
+  (cond
+    (zero? d) 0
+    :else (quot n d)))
+
+(defn asMb
+  "Convert a number of bytes to Mb"
+  [bytes]
+  (safe-quot bytes (* 1024 1024)))
+
+(defn asPrc
+  "Computes an integer percentage."
+  [n d]
+  (str (safe-quot (* n 100) d) "%"))
+
+
+(defn display-memory
+  "Displays the amount of memory available.
+
+  Output like \"141/1590M 9% used\" that means:
+
+  * 141 mb used out of max 1500 + 90 non-heap
+  * 9% as 141/1500
+
+  "
+  [{:keys [used max other]}]
+
+  (str (asMb used) "/"
+       (asMb (+ max other)) "M "
+       (asPrc used max) " used"))
+
+
+
 (defn runtime
   "Inspects the runtime for stuff you may want to
   print at runtime.
 
   * :pid - the current PID - under the JVM we also get the hostname
   * :vm  - the kind of VM we are running in
+  * :mem - current memory state - e.g. `\"141/1590M 9% used\"`
   "
   [what]
   (condp = what
     :pid  (P/get-current-pid)
     :vm   (P/get-current-VM)
+    :mem  (display-memory (P/get-memory-state))
     ))
 
 
@@ -184,7 +222,8 @@
   "
   [sym exp-to-eval]
   (let [v (eval exp-to-eval)
-        _ (prn (str "Say-cheez captured environment '" sym "' : " v))
+        _ (prn (str "=== Say-cheez captured environment '" sym "':"))
+        _ (prn v)
         ]
     `(defonce ~sym {:project ~v})))
 
