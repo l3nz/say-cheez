@@ -11,12 +11,14 @@ into CSS and storing the result as a string.
 
 ##  Example
 
+Look at this namespace:
+
 	(ns baab.baah
 		(:require [say-cheez.core :refer [capture-build-env-to]]))
 	....
 	(capture-build-env-to BUILD)
 
-Is exactly the same as if you wrote by hand:
+The var called `BUILD` is exactly the same as if you wrote by hand:
 
 	(defonce BUILD 
 		{:arch "x86_64",
@@ -29,7 +31,7 @@ Is exactly the same as if you wrote by hand:
 		 :version "0.0.2",
 		 :build-no "107"})
 
-But for the fact that such information comes from different places: 
+But that would be pretty annoying to do by hand, because such information comes from different places: 
 
 * project.clj
 * the build environment
@@ -49,28 +51,28 @@ Of course, you can capture the exact values you need if our own chili is not to 
 
 You can call any function and build any valid data structure.
 
-We offers ome convenience functions to help:
+Still, we offer some convenience functions to make your life easier:
 
-* Current time: `(now-as :datetime)`. Also valid: 
-	* :date
-    * :time
-    * :timec   (compact)
-    * :datetime
-* Environment: `(env ["A" "B"] "x")`. Tries reading first A and then B, and if all are undefined, returns "x". You may want to go look for a sequence of environament variables if you build on different machines / OS.
-* Leiningen: `(leiningen-info :project-name)`. Also valid:
-    * :projectt-name
-    * :version
-* Git: `(git-info :all)`. Also valid:
-    * :commit-id
-    * :commit-long
-    * :last-committer
-    * :date
-    * :date-compact
-    * :all    - *abcdefg/20181103.1023*
-* Runtime: this is useful if you have a long running application - maybe close to the version and build number, you want to print the current memory usage. I surely do. So call `(runtime :mem)`. Also valid:
-  * :pid - the current PID - under the JVM we also get the hostname
-  * :vm  - the kind of VM we are running in
-  * :mem - current memory state - e.g. `"141/1590M 9% used"`
+* *Current time:* `(now-as :datetime)`. Also valid: 
+	* `:date`
+    * `:time`
+    * `:timec`   (compact)
+    * `:datetime`
+* *Build Environment:* `(env ["A" "B"] "x")`. Tries reading first A and then B, and if all are undefined, returns "x". You may reasonably want to look for a sequence of environment variables if you build on different machines / OS's.
+* *Leiningen:* `(leiningen-info :project-name)`. Also valid:
+    * `:project-name`
+    * `:version`
+* *Git:* `(git-info :all)`. Also valid:
+    * `:commit-id`
+    * `:commit-long`
+    * `:last-committer`
+    * `:date`
+    * `:date-compact`
+    * `:all`    - *abcdefg/20181103.1023*
+* *Runtime:* this is useful if you have a long running application - maybe close to the version and build number, you want to print the current memory usage. I surely do. So call `(runtime :mem)`. Also valid:
+  * `:pid` - the current PID - under the JVM we also get the hostname
+  * `:vm`  - the kind of VM we are running in
+  * `:mem` - current memory state - e.g. `"141/1590M 9% used"`
 
 About the runtime, under `platform` there is a function to set the current thread's name.
 
@@ -94,7 +96,7 @@ Or the library can be easily referenced through Github:
 
 * Captures some environment (project name, date, version, build number, git commit) at build time
 * Has a couple of functions for inspecting runtime JVM and PID.
-* By separating the Java specific functions in the namespace "platform", it should be easy
+* By separating the Java specific functions in the namespace "platform", it should be easy (?)
   to extend for ClojureScript.
 
 TODO:
