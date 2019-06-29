@@ -6,20 +6,30 @@
 
   :aliases
   {"fix" ["cljfmt" "fix"]
-   "clj-kondo" ["trampoline" "run" "-m" "clj-kondo.main" "--" "--lint" "src/" "--cache" ".cli-kondo-cache"]}
+  ; Kondo
+   "clj-kondo" ["with-profile" "kondo"
+                "trampoline" "run" "-m"
+                "clj-kondo.main" "--" "--lint" "src/" "--cache" ".cli-kondo-cache"]
+   "clj-kondo-test" ["with-profile" "kondo"
+                     "trampoline" "run" "-m"
+                     "clj-kondo.main" "--" "--lint" "test/" "--cache" ".cli-kondo-cache"]}
 
   ; deps
   :dependencies
-  [[org.clojure/clojure "1.9.0" :scope "provided"]
-   [clj-kondo "2019.05.19-alpha" :scope "provided"]]
+  [[org.clojure/clojure "1.9.0" :scope "provided"]]
 
-  :main say-cheez.run
+  :profiles {:kondo
+             {:dependencies [[org.clojure/clojure "1.10.1"]
+                             [clj-kondo "2019.06.23-alpha"]]}} :main say-cheez.run
   :scm {:name "git"
         ;; :tag "..."
         :url "https://github.com/l3nz/say-cheez"}
+
+  ; Some plugins
   :plugins [[lein-eftest "0.5.1"]
-            [jonase/eastwood "0.2.5"]
-            [lein-kibit "0.1.6"]
-            [lein-cljfmt "0.5.7"]]; repos          
-  :deploy-repositories [["clojars"  {:sign-releases false :url "https://clojars.org/repo"}]
-                        ["snapshots" {:sign-releases false :url "https://clojars.org/repo"}]])
+            [lein-cljfmt "0.5.7"]]
+
+  ; Deploy to repos          
+  :deploy-repositories
+  [["clojars"  {:sign-releases false :url "https://clojars.org/repo"}]
+   ["snapshots" {:sign-releases false :url "https://clojars.org/repo"}]])
