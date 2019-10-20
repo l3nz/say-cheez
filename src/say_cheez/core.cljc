@@ -16,17 +16,14 @@
 
 
   "
-    (:require [say-cheez.platform :as P]
-              [clojure.edn :as edn]))
+  (:require [say-cheez.platform :as P]
+            [clojure.edn :as edn]))
 
 ;;
 ;; Date/time
 ;;
-
-
-
 (defn now-as
-    "Prints the current date/time in different ways.
+  "Prints the current date/time in different ways.
 
     * :date
     * :time
@@ -34,14 +31,12 @@
     * :datetime
 
     "
-    [mode]
-    (condp = mode
-        :date  (P/date->str "yyyy-MM-dd")
-        :time  (P/date->str "HH:mm:ss")
-        :timec (P/date->str "HHmmss")
-        :datetime (P/date->str "yyyy-MM-dd.HH:mm:ss")
-        ))
-
+  [mode]
+  (condp = mode
+    :date  (P/date->str "yyyy-MM-dd")
+    :time  (P/date->str "HH:mm:ss")
+    :timec (P/date->str "HHmmss")
+    :datetime (P/date->str "yyyy-MM-dd.HH:mm:ss")))
 
 ;;
 ;; Environment
@@ -63,28 +58,23 @@
   [lEnvVars defValue]
   (let [labels (if (string? lEnvVars)
                  [lEnvVars]
-                 lEnvVars
-                 )
+                 lEnvVars)
         attrs (mapv P/getenv labels)
         attrs-with-default (conj attrs defValue)]
 
     (first (filter some? attrs-with-default))))
 
-
-
 ;;
 ;; Leiningen project
 ;;
 
-
 (defn read-project-clj
-    []
-    (let [src (slurp "project.clj")]
-        (edn/read-string src)))
-
+  []
+  (let [src (slurp "project.clj")]
+    (edn/read-string src)))
 
 (defn leiningen-info
-    "Reads information from a leiningen project.
+  "Reads information from a leiningen project.
 
     * :projectt-name
     * :version
@@ -92,31 +82,29 @@
     Use the one-arity version.
 
     "
-   ([tag]
-     (leiningen-info tag read-project-clj))
+  ([tag]
+   (leiningen-info tag read-project-clj))
 
-    ([tag fnReader]
-    (let [project (fnReader)
-          [_ name version & opts] project]
-        (condp = tag
-            :project-name
-            (str name)
+  ([tag fnReader]
+   (let [project (fnReader)
+         [_ name version & _] project]
+     (condp = tag
+       :project-name
+       (str name)
 
-            :version
-            version))))
+       :version
+       version))))
 
 ;;
 ;; GIT
 ;;
 
 (defn gitlog [parms]
-    (let [cmdline (str "git log --oneline -n 1 " parms)]
-
+  (let [cmdline (str "git log --oneline -n 1 " parms)]
     (first (P/shellout cmdline))))
 
-
 (defn git-info
-    "Reads data from GIT. Git must be installed (we just shell-out).
+  "Reads data from GIT. Git must be installed (we just shell-out).
 
     * :commit-id
     * :commit-long
@@ -127,20 +115,16 @@
 
     "
 
-    [what]
-    (condp = what
-        :commit-id (gitlog "--pretty=%h")
-        :commit-long (gitlog "--pretty=%H")
-        :last-committer (gitlog "--pretty=%aN")
+  [what]
+  (condp = what
+    :commit-id (gitlog "--pretty=%h")
+    :commit-long (gitlog "--pretty=%H")
+    :last-committer (gitlog "--pretty=%aN")
 
-        :date    (gitlog "--date=format:%Y-%m-%d.%H:%M:%S --pretty=%cd")
-        :date-compact (gitlog "--date=format:%Y%m%d-%H%M --pretty=%cd")
-        :all   (str (git-info :commit-id) "/"
-                    (git-info :date))
-        ))
-
-
-
+    :date    (gitlog "--date=format:%Y-%m-%d.%H:%M:%S --pretty=%cd")
+    :date-compact (gitlog "--date=format:%Y%m%d-%H%M --pretty=%cd")
+    :all   (str (git-info :commit-id) "/"
+                (git-info :date))))
 
 ;; ======================================================
 ;; RUNTIME INFORMATION
@@ -163,7 +147,6 @@
   [n d]
   (str (safe-quot (* n 100) d) "%"))
 
-
 (defn display-memory
   "Displays the amount of memory available.
 
@@ -179,8 +162,6 @@
        (asMb (+ max other)) "M "
        (asPrc used max) " used"))
 
-
-
 (defn runtime
   "Inspects the runtime for stuff you may want to
   print at runtime.
@@ -193,16 +174,22 @@
   (condp = what
     :pid  (P/get-current-pid)
     :vm   (P/get-current-VM)
-    :mem  (display-memory (P/get-memory-state))
-    ))
-
-
+    :mem  (display-memory (P/get-memory-state))))
 
 ;;
 ;; DEFINE build env
 ;;
 
-
+(defmacro capture
+  "Evals an expression, and optionally prints it out
+  at compile time with the label 'name' if the label
+  exists."
+  ([exp-to-eval & [name]]
+   (let [v (eval exp-to-eval)
+         _ (when name
+             (prn (str "=== Say-cheez captured " name ":"))
+             (prn v))]
+     `~v)))
 
 (defmacro capture-to
   "Captures the compile-time evaluation of `exp-to-eval`
@@ -221,12 +208,37 @@
 
   "
   [sym exp-to-eval]
-  (let [v (eval exp-to-eval)
-        _ (prn (str "=== Say-cheez captured environment '" sym "':"))
-        _ (prn v)
-        ]
-    `(defonce ~sym {:project ~v})))
+  (let [n (str "to symbol " sym)
+        v `(capture ~exp-to-eval ~n)]
+    `(defonce ~sym ~v)))
 
+(defmacro current-build-env
+  "Creates the default build environment as a plain data
+  structure - so it is run only during macroexpansion.
+  Differently from [[capture-build-env-to]] and
+  [[capture-to]], it does not expand to a defonce for you,
+  as this confuses linters.
+
+  You would use this function like:
+
+  `(defonce BUILD (current-build-env))`
+
+  So that linters won't complain.
+
+  We just create a map an stick it in our source.
+  "
+  []
+  (let [v {:project   (leiningen-info :project-name)
+           :version   (leiningen-info :version)
+           :built-at  (now-as :datetime)
+           :on-host   (env ["HOSTNAME"] "?")
+           :osname    (env ["OSTYPE"] "?")
+           :arch      (env ["HOSTTYPE"] "?")
+           :build-no  (env ["BUILD_NUMBER"] "?")
+           :git-build (git-info :all)
+           :built-by  (env ["USER"] "?")}]
+
+    `(capture ~v)))
 
 (defmacro capture-build-env-to
   "Captures common build environment stuff into a single map
@@ -236,10 +248,10 @@
 
     `(capture-build-env-to BUILD)`
 
-
     Generates:
 
     `(defonce BUILD
+        {:project
          {:arch \"x86_64\",
           :git-build \"e4b7836/2018-11-03.14:45:31\",
           :osname \"gnu-linux\",
@@ -248,7 +260,7 @@
           :built-by \"jenkins\",
           :on-host \"jenkins18.loway.internal\",
           :version \"0.0.2\",
-          :build-no \"107\"})`
+          :build-no \"107\"}})`
 
     Not all values may be present, as it actually depends on
     what is available. If you need to fine-tune the contents,
@@ -256,14 +268,6 @@
 
     "
   [sym]
-  `(capture-to ~sym {:project (leiningen-info :project-name)
-                   :version (leiningen-info :version)
-                   :built-at (now-as :datetime)
-                   :on-host (env ["HOSTNAME"] "?")
-                   :osname (env ["OSTYPE"] "?")
-                   :arch   (env ["HOSTTYPE"] "?")
-                   :build-no (env ["BUILD_NUMBER"] "?")
-                   :git-build (git-info :all)
-                   :built-by (env ["USER"] "?")}))
-
+  `(capture-to ~sym
+               {:project (current-build-env)}))
 

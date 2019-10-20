@@ -9,6 +9,11 @@ is not available anymore once you deploy your app somewhere else.
 It can also be useful to run a pipeline once when building, e.g. compiling a SASS file
 into CSS and storing the result as a string.
 
+
+[![Clojars Project](https://img.shields.io/clojars/v/say-cheez.svg)](https://clojars.org/say-cheez)
+[![](https://cljdoc.xyz/badge/say-cheez)](https://cljdoc.xyz/jump/release/say-cheez)
+
+
 ##  Example
 
 Look at this namespace:
@@ -21,15 +26,16 @@ Look at this namespace:
 The var called `BUILD` is exactly the same as if you wrote by hand:
 
 	(defonce BUILD 
-		{:arch "x86_64",
-		 :git-build "e4b7836/2018-11-03.14:45:31",
-		 :osname "gnu-linux",
-		 :project "say-cheez",
-		 :built-at "2018-11-03.14:49:25",
-		 :built-by "jenkins",
-		 :on-host "jenkins18.loway.internal",
-		 :version "0.0.2",
-		 :build-no "107"})
+	    {:project
+    		{:arch "x86_64",
+	    	 :git-build "e4b7836/2018-11-03.14:45:31",
+		     :osname "gnu-linux",
+	    	 :project "say-cheez",
+		     :built-at "2018-11-03.14:49:25",
+	    	 :built-by "jenkins",
+		     :on-host "jenkins18.loway.internal",
+	    	 :version "0.0.2",
+		     :build-no "107"}})
 
 But that would be pretty annoying to do by hand, because such information comes from different places: 
 
@@ -40,6 +46,26 @@ But that would be pretty annoying to do by hand, because such information comes 
 
 And would not usually be available at run time.
 
+### Creating your own DEFs
+
+The problem with the approach above is that linters may not understand that 
+`BUILD` was defined at all, so they might display it as "broken" in your
+IDE or raise an exception. 
+
+To make them happy, you can define `BUILD` by yourself:
+
+	(ns baab.baah
+		(:require [say-cheez.core :refer [current-build-env]]))
+	....
+	(def BUILD (current-build-env))
+
+Please note that `current-build-env` has a couple of minor differences to `capture-build-env-to`:
+
+* It does not print the captured value (so you can have a 'silent' build)
+* It does not nest the captured value under a `:project` key, as it is
+  just a value that you can nest yourself.
+
+
 
 ### Customizing values
 
@@ -47,6 +73,19 @@ Of course, you can capture the exact values you need if our own chili is not to 
 
 		(capture-to MYBUILD {:project (leiningen-info :project-name)
 		                     :myId    (env ["MY_OWN_ID"] "?")})
+
+or, to avoid creating a silent def:
+
+        (def ABC (capture {:project (leiningen-info :project-name)
+		                   :myId    (env ["MY_OWN_ID"] "?")})
+		               
+or even:
+
+        (def ABC (capture {:project (leiningen-info :project-name)
+		                   :myId    (env ["MY_OWN_ID"] "?")}
+		                   "value of ABC")
+		                     
+where, during compile, the value computed will be printed out as "value of ABC".
 
 
 You can call any function and build any valid data structure.
@@ -78,13 +117,7 @@ About the runtime, under `platform` there is a function to set the current threa
 
 ## Using
 
-The library is available on Clojars:
-
-[![Clojars Project](https://img.shields.io/clojars/v/say-cheez.svg)](https://clojars.org/say-cheez)
-[![](https://cljdoc.xyz/badge/say-cheez)](https://cljdoc.xyz/jump/release/say-cheez)
-
-
-Or the library can be easily referenced through Github:
+The library is available on Clojars, or the library can be easily referenced through Github:
 
 	{:deps
 	 {cli-matic

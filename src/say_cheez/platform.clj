@@ -65,8 +65,8 @@
   "
   []
   (let [memBean (bean (java.lang.management.ManagementFactory/getMemoryMXBean))
-        {hU :used hM :max}    (bean (:heapMemoryUsage memBean))
-        {nU :used nM :committed} (bean (:nonHeapMemoryUsage memBean))]
+        {hU :used hM :max} (bean (:heapMemoryUsage memBean))
+        {nM :committed}    (bean (:nonHeapMemoryUsage memBean))]
 
     {:used hU
      :max hM

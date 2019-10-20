@@ -1,4 +1,4 @@
-(defproject say-cheez "0.1.1"
+(defproject say-cheez "0.2.0"
   :description "Takes a snapshot of the environment at build time."
   :url "https://github.com/l3nz/say-cheez"
   :license {:name "Eclipse Public License"
@@ -20,7 +20,7 @@
 
   :profiles {:kondo
              {:dependencies [[org.clojure/clojure "1.10.1"]
-                             [clj-kondo "2019.06.23-alpha"]]}} :main say-cheez.run
+                             [clj-kondo "2019.10.11-alpha"]]}} :main say-cheez.run
   :scm {:name "git"
         ;; :tag "..."
         :url "https://github.com/l3nz/say-cheez"}
