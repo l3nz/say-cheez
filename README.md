@@ -12,6 +12,7 @@ into CSS and storing the result as a string.
 
 [![Clojars Project](https://img.shields.io/clojars/v/say-cheez.svg)](https://clojars.org/say-cheez)
 [![](https://cljdoc.xyz/badge/say-cheez)](https://cljdoc.xyz/jump/release/say-cheez)
+![ClojarsDownloads](https://img.shields.io/clojars/dt/say-cheez)
 
 
 ##  Example
